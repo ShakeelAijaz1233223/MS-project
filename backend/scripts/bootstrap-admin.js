@@ -72,7 +72,7 @@ async function main() {
     throw new Error('Enter a valid name, username (3+ characters), and email address.');
   }
   if (password.length < 14) throw new Error('Administrator password must be at least 14 characters.');
-  if (!/^\d{8,20}$/.test(pin)) throw new Error('Keypad PIN must contain 8–20 digits and must differ from your password.');
+  if (!/^\d{8,20}$/.test(pin) || pin === password) throw new Error('Keypad PIN must contain 8–20 digits and must differ from your password.');
 
   const passwordHash = await bcrypt.hash(password, 12);
   const pinHash = await bcrypt.hash(pin, 12);
