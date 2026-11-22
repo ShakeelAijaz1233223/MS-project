@@ -90,6 +90,13 @@ async function main() {
   });
 
   try {
+    const [lockRows] = await connection.execute(
+      'SELECT GET_LOCK(?, 10) AS acquired',
+      ['ultradownloader_first_admin_bootstrap']
+    );
+    if (Number(lockRows[0]?.acquired) !== 1) {
+      throw new Error('Could not acquire the first-admin bootstrap lock. Retry shortly.');
+    }
     await connection.beginTransaction();
     const [rows] = await connection.execute('SELECT id FROM admin_users LIMIT 1 FOR UPDATE');
     if (rows.length !== 0) {
@@ -107,6 +114,7 @@ async function main() {
     await connection.rollback().catch(() => {});
     throw error;
   } finally {
+    await connection.execute('SELECT RELEASE_LOCK(?)', ['ultradownloader_first_admin_bootstrap']).catch(() => {});
     await connection.end();
   }
 
