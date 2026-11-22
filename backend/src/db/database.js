@@ -4,7 +4,6 @@ import { spawn } from 'node:child_process';
 import mysql from 'mysql2/promise.js';
 import { ENV, BACKEND_ROOT } from '../config/env.js';
 import { logger } from '../utils/logger.js';
-import { hashSecret } from '../security/cryptoVault.js';
 import {
   PLATFORM_DEFINITIONS,
   DEFAULT_AD_WATERFALL,
@@ -58,11 +57,6 @@ async function ensureStandbyMemoryInitialized() {
   if (standbyReadyPromise) return standbyReadyPromise;
   standbyReadyPromise = (async () => {
     const now = new Date().toISOString();
-    const [pinHash, passHash] = await Promise.all([
-      hashSecret('2580'),
-      hashSecret('UltraAdmin@2026'),
-    ]);
-
     mem.ad_slots = [
       { id: 1, slot_key: 'header_banner', name: 'Header Leaderboard', placement: 'header', ad_type: 'house', headline: 'Download any video in one click', body: 'No software, no sign-up, HD quality.', cta_text: 'Try it now', target_url: '/', image_url: '', adsense_client: '', adsense_slot: '', is_active: 1, weight: 10, created_at: now },
       { id: 2, slot_key: 'below_player', name: 'Below Player Billboard', placement: 'belowPlayer', ad_type: 'adsense', headline: '', body: '', cta_text: '', target_url: '', image_url: '', adsense_client: '', adsense_slot: '', is_active: 0, weight: 10, created_at: now },
@@ -85,20 +79,9 @@ async function ensureStandbyMemoryInitialized() {
       },
     ];
 
-    mem.admin_users = [
-      {
-        id: 'admin-master-01',
-        username: 'superadmin',
-        email: 'admin@ultradownloader.pro',
-        full_name: 'Master Super-Admin',
-        password_hash: passHash,
-        pin_hash: pinHash,
-        totp_secret: ENV.ADMIN_TOTP_SECRET || 'JBSWY3DPEHPK3PXP',
-        role: 'super_admin',
-        last_login_at: null,
-        created_at: now,
-      },
-    ];
+    // Fail closed in volatile standby mode: never seed a known default administrator.
+    // Administrator authentication requires a provisioned record in durable MySQL.
+    mem.admin_users = [];
 
     mem.platforms = PLATFORM_DEFINITIONS.map((p) => ({
       id: p.id,
