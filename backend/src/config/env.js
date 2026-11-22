@@ -11,6 +11,37 @@ const nodeEnv = process.env.NODE_ENV || 'development';
 const isProduction = nodeEnv === 'production';
 const rawOrigins = process.env.CORS_ORIGINS || 'http://localhost:5173,http://127.0.0.1:5173';
 
+// Production must never boot with repository-known development secrets.
+const productionSecretNames = [
+  'JWT_ADMIN_SECRET',
+  'JWT_USER_SECRET',
+  'PADLOCK_TICKET_SECRET',
+  'DOWNLOAD_TICKET_SECRET',
+  'AES_256_VAULT_KEY',
+  'ADMIN_TOTP_SECRET',
+  'ADS_HASH_SALT',
+];
+if (isProduction) {
+  const missingSecrets = productionSecretNames.filter((name) => !String(process.env[name] || '').trim());
+  if (missingSecrets.length) {
+    throw new Error(`Production startup blocked: configure unique secrets for: ${missingSecrets.join(', ')}`);
+  }
+  if (!/^[0-9a-fA-F]{64}$/.test(String(process.env.AES_256_VAULT_KEY || ''))) {
+    throw new Error('Production startup blocked: AES_256_VAULT_KEY must be exactly 32 random bytes encoded as 64 hexadecimal characters.');
+  }
+  const knownDefaults = [
+    'ultradownloader_v10_superadmin_jwt_secret_key_change_in_prod_998877',
+    'ultradownloader_v10_public_user_jwt_secret_key_change_in_prod_445566',
+    'ultradownloader_v10_gate1_padlock_ticket_secret_key_112233',
+    '7f9a8b2c4d6e1f3a5b7c9d0e2f4a6b8c1d3e5f7a9b0c2d4e6f8a0b1c3d5e7f9a',
+    'JBSWY3DPEHPK3PXP',
+  ];
+  const reusedDefaults = productionSecretNames.filter((name) => knownDefaults.includes(String(process.env[name] || '')));
+  if (reusedDefaults.length) {
+    throw new Error(`Production startup blocked: replace known development secrets for: ${reusedDefaults.join(', ')}`);
+  }
+}
+
 function parseTrustProxy(raw) {
   const val = String(raw ?? 'false').trim();
   if (!val || val === 'false') return false;
@@ -51,19 +82,13 @@ export const ENV = {
   EXTRACTOR_TIMEOUT_MS: Number(process.env.EXTRACTOR_TIMEOUT_MS || 25000),
   DOWNLOAD_TICKET_TTL_SECONDS: Number(process.env.DOWNLOAD_TICKET_TTL_SECONDS || 7200),
 
-  JWT_ADMIN_SECRET:
-    process.env.JWT_ADMIN_SECRET ||
-    'ultradownloader_v10_superadmin_jwt_secret_key_change_in_prod_998877',
-  JWT_USER_SECRET:
-    process.env.JWT_USER_SECRET ||
-    'ultradownloader_v10_public_user_jwt_secret_key_change_in_prod_445566',
-  PADLOCK_TICKET_SECRET:
-    process.env.PADLOCK_TICKET_SECRET ||
-    'ultradownloader_v10_gate1_padlock_ticket_secret_key_112233',
-  AES_256_VAULT_KEY:
-    process.env.AES_256_VAULT_KEY ||
-    '7f9a8b2c4d6e1f3a5b7c9d0e2f4a6b8c1d3e5f7a9b0c2d4e6f8a0b1c3d5e7f9a',
-  ADMIN_TOTP_SECRET: process.env.ADMIN_TOTP_SECRET || 'JBSWY3DPEHPK3PXP',
+  JWT_ADMIN_SECRET: process.env.JWT_ADMIN_SECRET || (isProduction ? '' : 'ultradownloader_v10_superadmin_jwt_secret_key_change_in_prod_998877'),
+  JWT_USER_SECRET: process.env.JWT_USER_SECRET || (isProduction ? '' : 'ultradownloader_v10_public_user_jwt_secret_key_change_in_prod_445566'),
+  PADLOCK_TICKET_SECRET: process.env.PADLOCK_TICKET_SECRET || (isProduction ? '' : 'ultradownloader_v10_gate1_padlock_ticket_secret_key_112233'),
+  AES_256_VAULT_KEY: process.env.AES_256_VAULT_KEY || (isProduction ? '' : '7f9a8b2c4d6e1f3a5b7c9d0e2f4a6b8c1d3e5f7a9b0c2d4e6f8a0b1c3d5e7f9a'),
+  ADMIN_TOTP_SECRET: process.env.ADMIN_TOTP_SECRET || (isProduction ? '' : 'JBSWY3DPEHPK3PXP'),
+  DOWNLOAD_TICKET_SECRET: process.env.DOWNLOAD_TICKET_SECRET || (isProduction ? '' : ''),
+  ADS_HASH_SALT: process.env.ADS_HASH_SALT || (isProduction ? '' : ''),
 
   // Production-safe 2FA controls:
   // - Production ALWAYS requires real 6-digit RFC-6238 TOTP and disables dev codes.
