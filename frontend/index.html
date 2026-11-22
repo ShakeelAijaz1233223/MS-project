@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UltraDownloader — Download & Watch Videos from Any Website All in One Place</title>
+    <meta
+      name="description"
+      content="Universal video analyzer, FilesZero/TeraPlayer watch-before-download online player, 4K MP4/WebM/MP3 resumable downloader for TeraBox, Social Media, Video Platforms, Courses & Open Web."
+    />
+    <meta name="theme-color" content="#7C3AED" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <script>
+      // Purple White is the ONLY theme. Always force 'light' before React
+      // mounts (avoids any dark flash). Any saved ud_theme=dark value is
+      // ignored and cleared — there is no dark theme to restore.
+      try {
+        localStorage.removeItem('ud_theme');
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.documentElement.classList.remove('dark');
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
