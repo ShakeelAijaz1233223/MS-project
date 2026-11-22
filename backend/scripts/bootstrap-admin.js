@@ -91,8 +91,8 @@ async function main() {
 
   try {
     await connection.beginTransaction();
-    const [rows] = await connection.execute('SELECT COUNT(*) AS count FROM admin_users FOR UPDATE');
-    if (Number(rows[0]?.count || 0) !== 0) {
+    const [rows] = await connection.execute('SELECT id FROM admin_users LIMIT 1 FOR UPDATE');
+    if (rows.length !== 0) {
       await connection.rollback();
       throw new Error('An administrator already exists. Refusing to create another bootstrap super-admin.');
     }
