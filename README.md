@@ -81,12 +81,17 @@ node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
 
 Keep `.env` private. Do not commit it or paste its contents into issues or chat.
 
-Install dependencies and start the API:
+Install dependencies, provision the first administrator, and start the API:
 
 ```powershell
 npm ci
+npm run admin:bootstrap
 npm run dev
 ```
+
+The bootstrap command creates the first administrator only when `admin_users` is empty. It prompts for a strong password and a separate 8–20 digit PIN without echoing either secret, generates a unique TOTP secret, and prints its authenticator provisioning URI once. Store the TOTP secret securely. It refuses to add another bootstrap super-admin if an administrator already exists.
+
+New SQL imports no longer seed a shared/default administrator. If you are upgrading an older database that already contains the historical default administrator, rotate its password, PIN and TOTP secret before exposing the application; removing the seed from the SQL file does not modify existing database rows.
 
 ### 3. Configure the frontend
 
