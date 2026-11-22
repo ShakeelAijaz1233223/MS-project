@@ -1116,7 +1116,7 @@ INSERT IGNORE INTO `seo_keywords` (`id`, `keyword`, `slug`, `impressions`, `clic
 ('seo-handbrake','HandBrake Video Downloader','handbrake-video-downloader',0,0,'2026-01-01T00:00:00.000Z');
 
 INSERT IGNORE INTO `websites` (`id`, `name`, `domain`, `content_mode`, `status`, `monthly_revenue`, `monthly_expense`, `seo_score`, `created_at`) VALUES ('site_main_clean', 'UltraDownloader Main Hub', 'localhost:5173', 'clean_mainstream', 'ACTIVE', 0, 0, 100, '2026-01-01T00:00:00.000Z');
-INSERT IGNORE INTO `admin_users` (`id`, `username`, `email`, `full_name`, `password_hash`, `pin_hash`, `totp_secret`, `role`, `last_login_at`, `created_at`) VALUES ('admin-master-01', 'superadmin', 'admin@ultradownloader.pro', 'Master Super-Admin', '$2a$12$uqRxLvmYRhHZnU.ViOw0BOAbV3OBZtb85hQZYgpGfAk5KRz6ZN4ce', '$2a$12$DNdN8TIZm1ngz1yTs1HxtuKC9nxya5QPckY.Oai/2UNeviEtSb75S', 'JBSWY3DPEHPK3PXP', 'super_admin', NULL, '2026-01-01T00:00:00.000Z');
+-- No default administrator is seeded. Run `npm run admin:bootstrap` after configuring MySQL.
 
 INSERT IGNORE INTO `ad_slots` (`slot_key`,`name`,`placement`,`ad_type`,`headline`,`body`,`cta_text`,`target_url`,`image_url`,`adsense_client`,`adsense_slot`,`is_active`,`weight`,`created_at`) VALUES
 ('header_banner','Header Leaderboard','header','house','Download any video in one click','No software, no sign-up, HD quality.','Try it now','/','','','',1,10,'2026-01-01T00:00:00.000Z'),
