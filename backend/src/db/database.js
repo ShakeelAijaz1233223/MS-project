@@ -4,7 +4,6 @@ import { spawn } from 'node:child_process';
 import mysql from 'mysql2/promise.js';
 import { ENV, BACKEND_ROOT } from '../config/env.js';
 import { logger } from '../utils/logger.js';
-import { hashSecret } from '../security/cryptoVault.js';
 import {
   PLATFORM_DEFINITIONS,
   DEFAULT_AD_WATERFALL,
