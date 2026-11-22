@@ -26,6 +26,14 @@ if (isProduction) {
   if (missingSecrets.length) {
     throw new Error(`Production startup blocked: configure unique secrets for: ${missingSecrets.join(', ')}`);
   }
+  const weakOrPlaceholderSecrets = productionSecretNames.filter((name) => {
+    const value = String(process.env[name] || '').trim();
+    const minimumLength = name === 'ADMIN_TOTP_SECRET' ? 16 : 32;
+    return value.length < minimumLength || /replace|placeholder|example|change_in_prod/i.test(value);
+  });
+  if (weakOrPlaceholderSecrets.length) {
+    throw new Error(`Production startup blocked: replace weak or placeholder values for: ${weakOrPlaceholderSecrets.join(', ')}`);
+  }
   if (!/^[0-9a-fA-F]{64}$/.test(String(process.env.AES_256_VAULT_KEY || ''))) {
     throw new Error('Production startup blocked: AES_256_VAULT_KEY must be exactly 32 random bytes encoded as 64 hexadecimal characters.');
   }
